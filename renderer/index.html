@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'">
+  <title>Echo by VRSecLabs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="brand">
+      <span class="wordmark">Echo <span class="by">by VRSec<b>Labs</b></span></span>
+      <span id="badge" class="badge" title="Privacy settings"><i></i><span id="badgeText">private · on-device</span></span>
+    </div>
+
+    <div id="empty" class="empty">
+      <div class="hello">How can I help?</div>
+      <div class="sub">Everything you type stays on this computer.</div>
+      <div class="suggest" id="suggest">
+        <button data-q="Remind me to take my medicine every day at 9pm">Medicine reminder</button>
+        <button data-q="I spent 450 on lunch with my credit card">Log an expense</button>
+        <button data-q="Schedule a meeting tomorrow at 3pm for 30 minutes">Add a meeting</button>
+        <button data-q="How much did I spend this month?">Monthly spend</button>
+        <button data-q="Remember that my doctor is Dr. Mehta">Remember something</button>
+        <button data-q="Scan my network for smart devices">Find devices</button>
+      </div>
+    </div>
+
+    <div id="log" aria-live="polite"></div>
+
+    <div class="composer">
+      <textarea id="q" rows="1" autofocus autocomplete="off" spellcheck="false"
+                placeholder="Ask Echo anything, set a reminder, log an expense, add a meeting…"></textarea>
+    </div>
+    <div class="hint">
+      <span id="model"></span>
+      <span class="sp"></span>
+      <span>⏎ send</span><span>⇧⏎ new line</span><span>esc hide</span><span>/settings</span><span>/privacy</span><span>/clear</span>
+    </div>
+  </div>
+  <script src="sounds.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

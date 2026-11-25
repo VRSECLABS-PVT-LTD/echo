@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'">
+  <title>Welcome to Echo</title>
+  <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+  <!-- LEFT: animated brand + trust story -->
+  <aside id="stage">
+    <div class="drag"></div>
+    <div class="orb-wrap" id="orbWrap">
+      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <div class="halo"></div>
+      <div class="orb"><span>Echo</span></div>
+      <div class="p p1"></div><div class="p p2"></div><div class="p p3"></div><div class="p p4"></div><div class="p p5"></div>
+    </div>
+
+    <div class="slides" id="slides">
+      <div class="slide on">
+        <svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3"/><rect x="4" y="11" width="16" height="10" rx="2"/></svg>
+        <h3>Your data never leaves this device</h3>
+        <p>Echo runs the AI model on your own computer. No cloud, no servers, no accounts.</p>
+      </div>
+      <div class="slide">
+        <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z"/></svg>
+        <h3>Encrypted at rest</h3>
+        <p>Reminders, expenses and memories are sealed with AES-256-GCM. The key lives in your system keychain.</p>
+      </div>
+      <div class="slide">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Nothing hidden</h3>
+        <p>No telemetry, no analytics, no ads. Any outside connection is one you started, and it's listed in the network log.</p>
+      </div>
+      <div class="slide">
+        <svg viewBox="0 0 24 24"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"/></svg>
+        <h3>Open source · GPL-3.0</h3>
+        <p>Don't trust us. Verify us. Every line of Echo is public and auditable.</p>
+      </div>
+      <div class="slide">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/></svg>
+        <h3>Built by VRSecLabs</h3>
+        <p>A security lab building privacy-first tools that respect the people who use them.</p>
+      </div>
+    </div>
+    <div class="slide-dots" id="slideDots"></div>
+
+    <footer class="trust">
+      <button class="link" id="siteLink">vrseclabs.in</button>
+      <span>·</span>
+      <span>GPL-3.0</span>
+    </footer>
+  </aside>
+
+  <!-- RIGHT: steps -->
+  <main>
+    <div class="steps" id="stepDots"><i></i><i></i><i></i><i></i><i></i></div>
+
+    <section id="welcome">
+      <div class="eyebrow">Welcome</div>
+      <h1>Meet <span class="grad">Echo</span>, your private AI assistant.</h1>
+      <p class="lead">Reminders, calendar, expenses, card bills, smart home and your own APIs, all handled by an AI that runs entirely on your computer.</p>
+      <ul class="checks">
+        <li>Works offline after setup</li>
+        <li>No sign-up, no account, no tracking</li>
+        <li>One shortcut, from anywhere: <kbd id="hotkeyWelcome"></kbd></li>
+      </ul>
+      <div class="actions"><button class="primary" id="startBtn">Get started</button></div>
+      <p class="fine">Setup takes about 2 minutes and downloads one AI model (1 to 5 GB) through Ollama.</p>
+    </section>
+
+    <section id="engine" hidden>
+      <div class="eyebrow">Step 1 of 3 · AI engine</div>
+      <h1>Checking your AI engine</h1>
+      <p class="lead">Echo uses <b>Ollama</b>, a free, open-source engine that runs AI models locally on your machine.</p>
+      <div class="status" id="engineStatus"><span class="spinner"></span><span id="engineText">Looking for Ollama…</span></div>
+      <div id="engineMissing" hidden>
+        <p id="engineHelp"></p>
+        <div class="cmd" id="linuxCmd" hidden><code>curl -fsSL https://ollama.com/install.sh | sh</code><button class="ghost small" id="copyCmd">Copy</button></div>
+        <div class="actions">
+          <button class="primary" id="downloadBtn">Download Ollama (official site)</button>
+          <button class="ghost" id="retryBtn">I've installed it</button>
+        </div>
+        <p class="fine">Echo checks every few seconds and continues automatically once Ollama is running.</p>
+      </div>
+      <div class="actions" id="engineNext" hidden><button class="primary" id="engineContinue">Continue</button></div>
+    </section>
+
+    <section id="model" hidden>
+      <div class="eyebrow">Step 2 of 3 · Choose your brain</div>
+      <h1>Pick a model for this computer</h1>
+      <p class="lead" id="machine"></p>
+      <div class="cards" id="cards"></div>
+      <div class="actions"><button class="primary" id="installBtn">Install</button></div>
+    </section>
+
+    <section id="install" hidden>
+      <div class="eyebrow">Step 3 of 3 · Installing</div>
+      <h1 id="installTitle">Downloading your private AI</h1>
+      <p class="lead" id="installSub">This happens once. After this, Echo works fully offline.</p>
+      <div class="bar"><div class="fill" id="fill"></div><div class="shine"></div></div>
+      <div class="meta"><span id="pct">0%</span><span id="bytes"></span><span id="speed"></span></div>
+      <ol class="phases" id="phases">
+        <li data-p="manifest">Fetching model manifest</li>
+        <li data-p="download">Downloading model weights</li>
+        <li data-p="verify">Verifying integrity (SHA-256)</li>
+        <li data-p="write">Installing</li>
+        <li data-p="warm">Optimizing for instant replies</li>
+      </ol>
+      <p class="error" id="installErr" hidden></p>
+      <div class="actions" id="installRetry" hidden><button class="primary" id="retryInstall">Try again</button></div>
+    </section>
+
+    <section id="done" hidden>
+      <div class="eyebrow">All set</div>
+      <h1>Echo is ready.</h1>
+      <p class="lead">Press this shortcut anywhere to talk to Echo:</p>
+      <div class="keys" id="keys"></div>
+      <ul class="checks">
+        <li>"Remind me to take my medicine every day at 9pm"</li>
+        <li>"I spent 450 on groceries with my debit card"</li>
+        <li>"My HDFC card bill is due on the 20th"</li>
+      </ul>
+      <div class="actions"><button class="primary" id="finishBtn">Start using Echo</button></div>
+      <p class="fine">Echo lives in your menu bar / system tray as <b>VRSeclabs</b>.</p>
+    </section>
+  </main>
+  <script src="setup.js"></script>
+</body>
+</html>

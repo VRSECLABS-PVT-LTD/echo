@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'">
+  <title>Echo Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <header>
+    <span class="wordmark">Echo <span class="by">by VRSec<b>Labs</b></span></span><span class="sub">Settings</span>
+    <span class="sp"></span><span id="privPill" class="pill"></span>
+  </header>
+  <div class="layout">
+    <nav>
+      <a href="#general">General</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#integrations">Integrations</a>
+      <a href="#calls">Calls &amp; devices</a>
+      <a href="#about">About VRSecLabs</a>
+    </nav>
+    <main>
+      <!-- GENERAL -->
+      <section id="general">
+        <h2>General</h2>
+        <div class="card">
+          <label>AI model <select id="model"></select></label>
+          <p class="note">Models run locally through Ollama. Smaller is faster. <button class="link" id="rerunSetup">Install another model…</button></p>
+          <label>Global shortcut <input id="hotkey" placeholder="Alt+Space"></label>
+          <p class="note">Examples: <code>Alt+Space</code>, <code>Control+Shift+Space</code>, <code>CommandOrControl+Shift+E</code>.</p>
+          <label>Currency symbol <input id="currency" maxlength="5"></label>
+          <label id="calWrap">macOS calendar name (optional) <input id="calendarName" placeholder="Leave empty for your default calendar"></label>
+          <div class="row"><button id="saveGeneral">Save</button></div>
+        </div>
+        <div class="card">
+          <div class="toggle-row">
+            <div><div class="t">Sounds</div><div class="note">Little chimes for reminders and bill alerts, and a soft "bloop" when Echo replies. Off = notifications use your system's default sound.</div></div>
+            <label class="switch"><input type="checkbox" id="sounds"><span></span></label>
+          </div>
+          <div class="row" id="soundPreview">
+            <button class="ghost small" data-sound="reminder">Reminder</button>
+            <button class="ghost small" data-sound="cardSoon">Bill coming up</button>
+            <button class="ghost small" data-sound="cardToday">Bill due today</button>
+            <button class="ghost small" data-sound="cardOverdue">Bill overdue</button>
+            <button class="ghost small" data-sound="reply">Chat reply</button>
+            <button class="ghost small" data-sound="error">Error</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRIVACY -->
+      <section id="privacy">
+        <h2>Privacy</h2>
+        <div class="card status-card" id="encCard"></div>
+        <div class="card">
+          <div class="toggle-row">
+            <div><div class="t">Local-only mode</div><div class="note">Blocks every request that would leave your local network, including API integrations on internet hosts. Recommended.</div></div>
+            <label class="switch"><input type="checkbox" id="localOnly"><span></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="t">Keep chat history between sessions</div><div class="note">Off = Echo forgets the conversation when you quit. Reminders, expenses and memories are always kept.</div></div>
+            <label class="switch"><input type="checkbox" id="saveHistory"><span></span></label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="head-row"><h3>Network activity log</h3><button class="ghost small" id="clearLog">Clear</button></div>
+          <p class="note">Every connection Echo makes outside your computer is recorded here: setup downloads, links you open, and API calls you allow. Talking to the local AI engine (127.0.0.1) isn't listed, because it never leaves this machine.</p>
+          <table><thead><tr><th>When</th><th>What</th><th>Host</th><th>Result</th></tr></thead><tbody id="netlog"></tbody></table>
+          <p class="note" id="netlogEmpty">Nothing has left this computer.</p>
+        </div>
+        <div class="card">
+          <h3>Your data</h3>
+          <p class="note" id="dataDir"></p>
+          <div class="row"><button class="ghost" id="openData">Open data folder</button><button class="danger" id="wipe">Erase all Echo data…</button></div>
+        </div>
+      </section>
+
+      <!-- INTEGRATIONS -->
+      <section id="integrations">
+        <h2>Integrations</h2>
+        <div class="card">
+          <h3>Home Assistant (local)</h3>
+          <p class="note">Control lights, plugs and more. Echo talks to Home Assistant on your local network only, and asks before every action.</p>
+          <label>URL <input id="haUrl" placeholder="http://homeassistant.local:8123"></label>
+          <label>Long-lived access token <input id="haToken" type="password" autocomplete="off" placeholder="leave blank to keep the saved one"></label>
+          <div class="row"><button id="saveHa">Save</button><button class="ghost" id="clearHa">Remove token</button></div>
+        </div>
+
+        <h3 class="sub-h">API integrations</h3>
+        <p class="note">Import an OpenAPI / Swagger schema (JSON or YAML) and Echo can call that API for you. Tokens are encrypted and never shown again.
+          Requests only go to the host you set, and anything that changes data (POST / PUT / PATCH / DELETE) asks for approval first.
+          APIs on internet hosts need <b>local-only mode</b> turned off.</p>
+        <div id="list"></div>
+
+        <div class="card" id="editor" hidden>
+          <h3 id="edTitle">Edit</h3>
+          <label>Name <input id="edName" maxlength="40"></label>
+          <label>Base URL <input id="edUrl" placeholder="https://api.example.com/v1"></label>
+          <div id="edWarn" class="warn"></div>
+          <label>Authentication
+            <select id="edAuth">
+              <option value="none">None</option>
+              <option value="bearer">Bearer token (Authorization: Bearer …)</option>
+              <option value="header">API key in a header</option>
+              <option value="query">API key in the URL query</option>
+              <option value="basic">Basic auth (user:password)</option>
+            </select>
+          </label>
+          <label id="edAuthNameWrap">Header / query parameter name <input id="edAuthName" placeholder="X-API-Key"></label>
+          <label>Token / secret <input id="edToken" type="password" autocomplete="off" placeholder="leave blank to keep the saved one"></label>
+          <div class="row">
+            <button id="edSave">Save</button>
+            <button id="edClear" class="ghost">Remove saved token</button>
+            <button id="edCancel" class="ghost">Close</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Add an API</h3>
+          <label>Name <input id="newName" maxlength="40" placeholder="e.g. Weather, Notion (optional)"></label>
+          <label>Schema <textarea id="newSpec" placeholder="Paste OpenAPI / Swagger JSON or YAML here…"></textarea></label>
+          <div class="row"><button id="importPaste">Import pasted schema</button><button id="importFile" class="ghost">Choose file…</button></div>
+        </div>
+      </section>
+
+      <!-- CALLS -->
+      <section id="calls">
+        <h2>Calls &amp; devices</h2>
+        <div class="card">
+          <p class="note" id="callsNote"></p>
+          <p class="note">Every call needs your approval. Bluetooth status is read locally and never shared.</p>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about">
+        <h2>About</h2>
+        <div class="card about">
+          <div class="about-title">Echo <span class="by">by VRSec<b>Labs</b></span> <span id="version" class="ver"></span></div>
+          <p>Echo is a private AI assistant that runs entirely on your computer. It was built by <b>VRSecLabs</b>, a security lab that makes privacy-first tools.</p>
+          <ul class="pledge">
+            <li><b>On-device.</b> The AI model runs locally. Your words are never sent to a cloud service.</li>
+            <li><b>Encrypted.</b> All your data is encrypted at rest with a key held by your operating system's keychain.</li>
+            <li><b>Transparent.</b> No telemetry, no analytics, no accounts. Every outside connection is shown in the network log.</li>
+            <li><b>Open source.</b> Licensed under GPL-3.0. Anyone can read, audit and improve the code.</li>
+          </ul>
+          <div class="row"><button id="openSite">Visit vrseclabs.in</button></div>
+        </div>
+        <div class="card">
+          <h3>Support &amp; security</h3>
+          <p class="note">Found a bug, a security issue, or have feedback? Email <b id="supportEmail">security@vrseclabs.in</b>. Please don't include personal data you wouldn't want to share.</p>
+          <div class="row"><button class="ghost" id="openReport">Report a problem</button></div>
+        </div>
+      </section>
+      <div id="msg" role="status"></div>
+    </main>
+  </div>
+  <script src="sounds.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
